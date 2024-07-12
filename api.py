@@ -53,6 +53,7 @@ def predictAngleTf():
     data = request.get_json()
     angle = data['Angle']
     velocity = data['Velocity']
+    print("angle: ", angle)
     predicted_time = predictAngularTime(angle, velocity)
     return jsonify({'predicted_time': predicted_time})
 

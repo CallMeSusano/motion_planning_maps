@@ -117,17 +117,19 @@ def bfs_algorithm(target, map_origin, initial_angle, map_data, map_image):
 
     # Calculate the initial rotation to 0 degrees
     if initial_angle != 0:
-        angle_to_zero = -initial_angle - 90  # Rotate by the negative of the initial angle to get to 0 degrees
+        angle_to_zero = -initial_angle # Rotate by the negative of the initial angle to get to 0 degrees
+        print("Angle to zero positive: ", angle_to_zero)
         response = requests.post("http://127.0.0.1:5000/predictAngleTf", json={'Angle': angle_to_zero, 'Velocity': 0.5})
         direction = "Left" if angle_to_zero > 0 else "Right"
         csv_data.append(["rotation", response.json().get('predicted_time'), direction])
 
     # Starting direction after rotation to 0 degrees
-    start_direction = (1, 0)  # 0 degrees corresponds to the (1, 0) vector
+    start_direction = (1,1)  # 0 degrees corresponds to the (1, 0) vector
 
     for direction, steps in final_path:
         # Calculate rotation angle if there's a change in direction
         angle = calculate_angle(start_direction, direction)
+        print("rotating angle step, ", angle)
         if angle != 0:
             # Predict angle time
             response = requests.post("http://127.0.0.1:5000/predictAngleTf", json={'Angle': angle, 'Velocity': 0.5})
@@ -141,6 +143,7 @@ def bfs_algorithm(target, map_origin, initial_angle, map_data, map_image):
             start_direction = direction
         # Add forward movement & predict distance time        
         response = requests.post("http://127.0.0.1:5000/predictLinearTf", json={'Distance': steps * resolution, 'Velocity': 0.1})
+        print("forard, ", steps * resolution)
 
         csv_data.append(["forward", response.json().get('predicted_time'), "NULL"])  # Distance in meters
 
@@ -165,5 +168,5 @@ def bfs_algorithm(target, map_origin, initial_angle, map_data, map_image):
     print("Map image with path saved as 'map_with_path.png'")
     print(f"CSV with path instructions saved as '{csv_file_path}'")
 
-    map_save_command = 'ros2 run motion_plan Motion'
-    subprocess.run(map_save_command, shell=True)
+    #map_save_command = 'ros2 run motion_plan Motion'
+    #subprocess.run(map_save_command, shell=True)
